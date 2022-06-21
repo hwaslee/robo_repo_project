@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot generator="Robot 5.0.1 (Python 3.7.5 on win32)" generated="20220607 16:42:57.656" rpa="true" schemaversion="3">
+<suite id="s1" name="Tasks" source="c:\Python\apps\my-rsb-robot\tasks.robot">
+<test id="s1-t1" name="Minimal task" line="13">
+<kw name="Log" library="BuiltIn">
+<arg>"Open-Browser is done..".</arg>
+<doc>Logs the given message with the given level.</doc>
+<msg timestamp="20220607 16:42:58.635" level="INFO">"Open-Browser is done..".</msg>
+<status status="PASS" starttime="20220607 16:42:58.635" endtime="20220607 16:42:58.675"/>
+</kw>
+<status status="PASS" starttime="20220607 16:42:58.632" endtime="20220607 16:42:58.675"/>
+</test>
+<doc>Insert the sales data for the week and export it as a PDF.</doc>
+<status status="PASS" starttime="20220607 16:42:57.676" endtime="20220607 16:42:58.680"/>
+</suite>
+<statistics>
+<total>
+<stat pass="1" fail="0" skip="0">All Tasks</stat>
+</total>
+<tag>
+</tag>
+<suite>
+<stat pass="1" fail="0" skip="0" id="s1" name="Tasks">Tasks</stat>
+</suite>
+</statistics>
+<errors>
+</errors>
+</robot>
