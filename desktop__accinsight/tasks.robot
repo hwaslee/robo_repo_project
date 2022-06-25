@@ -7,13 +7,11 @@
 Library     RPA.Windows
 Library     RPA.Desktop.Windows
 
-
 *** Tasks ***
 Automate MiPlatform
     Start The Miplatform
     Login MiPlatform
     Click grid    # Using The AutomationId Property Value
-
 
 *** Keywords ***
 Start The Miplatform
