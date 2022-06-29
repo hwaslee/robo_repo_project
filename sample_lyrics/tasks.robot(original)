@@ -1,0 +1,79 @@
+*** Comments ***
+# https://robocorp.com/docs/development-guide
+# AD page appears during the execution, but it doesn't when accessing directly from the browser
+# don't know why?
+
+
+*** Settings ***
+Documentation       Google Translate song lyrics from source to target language.
+...                 Save the original and the translated lyrics as text files
+
+Library             RPA.Browser
+Library             OperatingSystem
+Library             RPA.Windows
+Library             RPA.Hubspot
+# Task Teardown    Close All Browsers
+
+
+*** Variables ***
+${SONG_NAME}=               %{SONG_NAME=Peaches}
+${SOURCE_LANG}=             %{SOUERCE_LANG=en}
+${TAR_LANG}=                %{TAR_LANG=ko}
+${button_class_name}=       btn skip
+
+
+*** Tasks ***
+Google Translate song lyrics from source to target language
+    ${lyrics}=    Get lyrics
+    ${translation}=    Translate    ${lyrics}
+    Save lyrics    ${lyrics}    ${translation}
+
+
+*** Keywords ***
+Get lyrics
+    # Open Available Browser    https://www.lyrics.com/lyrics/${SONG_NAME}    Edge
+    # Open Browser    https://www.lyrics.com/lyrics/${SONG_NAME}
+    Open Available Browser    https://www.lyrics.com/lyrics/${SONG_NAME}    browser_selection=Chrome
+    Log To Console    ---- 1
+    Click Element When Visible    css:.best-matches a
+    Log To Console    ---- 2
+    # FOR    ${i}    IN RANGE    1    10
+    #    Set Wait Time    1.0
+    #    Log To Console    ---- ${i}
+    #    # Click Element If Visible    css:#dismiss-button
+    #    Click Button When Visible    css:#dismiss-button
+    # END
+    # Click Element When Visible    css:.best-matches a
+    ## ${lyrics_element}=    Set Variable    id:lyric-body-text
+    ${lyrics_element}=    Set Variable    css:#lyric-body-text
+    Log To Console    ---- 3
+
+    # Click Button When Visible    css:#dismiss-button    # not working
+    # Click Button When Visible    //button[@class="btn skip"]    # not working
+    # Click Button When Visible    css:.${button_class_name}    # not working
+    # Click Button When Visible    id:dismiss-button    # not working
+
+    Wait Until Element Is Visible    ${lyrics_element}
+    Log To Console    ---- 4
+    # FOR    ${i}    IN RANGE    10
+    #    Set Wait Time    1.0
+    #    Log To Console    ==== ${i}
+    # END
+    ${lyrics}=    RPA.Browser.Get Text    ${lyrics_element}
+    Log To Console    ---- 5
+    RETURN    ${lyrics}
+
+Translate
+    [Arguments]    ${lyrics}
+    # No Operation
+    Go To    https://translate.google.co.kr/?hl=ko&tab=rT&sl=${SOURCE_LANG}&tl=${TAR_LANG}&text=${lyrics}&op=translate
+    ${translation_element}=    Set Variable    css:.Q4iAWc
+    Wait Until Element Is Visible    ${translation_element}
+    ${translation}=    RPA.Browser.Get Text    ${translation_element}
+    RETURN    ${translation}
+
+Save lyrics
+    [Arguments]    ${lyrics}    ${translation}
+    # No Operation
+    Create File    ${OUTPUT_DIR}${/}${SONG_NAME}-${SOURCE_LANG}-original.txt    ${lyrics}
+    Create File    ${OUTPUT_DIR}${/}${SONG_NAME}-${TAR_LANG}-translation.txt    ${translation}
