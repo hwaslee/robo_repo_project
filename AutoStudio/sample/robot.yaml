@@ -1,0 +1,11 @@
+tasks:
+  Google Translate song lyrics from source to target language:
+    robotTaskName: Google Translate song lyrics from source to target language
+condaConfigFile: conda.yaml
+ignoreFiles:
+- .gitignore
+artifactsDir: output
+PATH:
+- .
+PYTHONPATH:
+- .

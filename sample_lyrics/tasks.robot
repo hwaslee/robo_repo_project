@@ -2,6 +2,7 @@
 # https://robocorp.com/docs/development-guide
 # AD page appears during the execution, but it doesn't when accessing directly from the browser
 # don't know why?
+# With the help from linkraivo, the problem solved....
 
 
 *** Settings ***
@@ -31,30 +32,40 @@ Google Translate song lyrics from source to target language
 
 *** Keywords ***
 Get lyrics
-    # Open Available Browser    https://www.lyrics.com/lyrics/${SONG_NAME}    Edge
+    # Open Available Browser    https://www.lyrics.com/lyrics/${SONG_NAME}    browser_selection=Edge
     # Open Browser    https://www.lyrics.com/lyrics/${SONG_NAME}    browser=Edge
-    Open Available Browser    https://www.lyrics.com/lyrics    browser_selection=Chrome
+    Open Available Browser    https://www.lyrics.com/lyrics    browser_selection=Chrome    maximized=True
     Press Keys    //*[@id="search"]    ${SONG_NAME}
     Click Button    //*[@id="page-word-search-button"]
     Click Element When Visible    css:.best-matches a
     Log To Console    \n---- 1
 
-    # "AD" screen popped up --> to close AD screen
-    ${x}=    Set Variable    ${0}
-    WHILE    ${x} < 3
-        # IF    ${x} == 2    CONTINUE    # Skip this iteration.
-        # Log    x = ${x}    # x = 1, x = 3
-        TRY
-            # Click Button When Visible    //*[@id="dismiss-button"]
-            # Click Element When Visible    //*[@id="dismiss-button"]
-            # Click Element When Visible    css:#dismiss-button
-            Click Element When Visible    id:dismiss-button
-        EXCEPT
-            Log To Console    --- Exception occurred..
-        END
-        ${x}=    Evaluate    ${x} + 1
-        Log To Console    ---- 2
-    END
+    # 1. "AD" screen popped up --> to close AD screen (Not working)
+    # ${x}=    Set Variable    ${0}
+    # WHILE    ${x} < 3
+    #    # IF    ${x} == 2    CONTINUE    # Skip this iteration.
+    #    # Log    x = ${x}    # x = 1, x = 3
+    #    TRY
+    #    # Click Button When Visible    //*[@id="dismiss-button"]
+    #    # Click Button    //*[@id="dismiss-button"]
+    #    # Click Element When Visible    //*[@id="dismiss-button"]
+    #    # Click Element When Visible    css:#dismiss-button
+    #    # Click Element When Visible    id:dismiss-button
+    #    # Click Element    css=#dismiss-button
+    #    EXCEPT
+    #    Log To Console    --- Exception occurred..${x}
+    #    END
+    #    ${x}=    Evaluate    ${x} + 1
+    # END
+
+    # 2. "AD" screen popped up --> to close AD screen (Not working)
+    # Wait Until Page Contains Element    css=#aswift_1
+    # Click Element When Visible    css=#dismiss-button.ns-tangn-e-6.close-button    # not working
+    # Click Element When Visible    css=#dismiss-button.ns-tangn-e-6    # not working
+
+    # 3. "AD" screen popped up --> to close AD screen (working)
+    Run Keyword And Ignore Error    Handle Ad
+
     Log To Console    ---- 3
 
     ${lyrics_element}=    Set Variable    css:#lyric-body-text
@@ -78,3 +89,11 @@ Save lyrics
     # No Operation
     Create File    ${OUTPUT_DIR}${/}${SONG_NAME}-${SOURCE_LANG}-original.txt    ${lyrics}
     Create File    ${OUTPUT_DIR}${/}${SONG_NAME}-${TAR_LANG}-translation.txt    ${translation}
+
+Handle Ad
+    Wait Until Page Contains Element    css=#aswift_1
+    Select Frame    css=#aswift_1
+    Select Frame    css=#ad_iframe
+    Click Element    css=#dismiss-button
+    Unselect Frame
+    Unselect Frame
