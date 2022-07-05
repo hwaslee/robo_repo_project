@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "visionpilot-221506",
+  "private_key_id": "eadd89fa0d23f8cdf1c9367ff609b534b2ab6c1e",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC+6ACVbeN5bDmd\nMJ3TFJbNHBBBzYYmpR9v/+z4xX1MU5Y+Ay2qPWMUpYcAOPzj8gwtLK4cBreXisbk\nPecNVtnctBZINadve2r5maQ7VFNkt/9KzDbbhxOZcdCenUg4vfJw39BefOlUyPWX\nw4qsH+cpEnn9eM1Ltida8l39ojxx4fb1N2EhSdgZqy7m/jb9gi0er8o6L5XSfBNf\nAbFqUhPUt7rdbc9ywJO3+FzKGt3AyzhiAjPmqn6YJEUMbQV6z8De/rFkswLU0iS/\n4o6+l+teG7uJyeZLu3EHHd2GBx2gxLBXt+FUlyHgplbyM+ZvsDfTaTOnPE5gFkKc\nKarwzhXtAgMBAAECggEAJ195E1idJENWZJ2Mx2aFLZtenPuy8dB3eeV6LdqpW28X\n2wVTyzsq7qyu+bRHMAoRSdXfuOcHwWj9WUCNITqq5zJ7L/xk4oC9UOpHrXbYVjr+\nm6IfpEopGCoZoUUGCrHeSTpX4sz3YKWrxVeuh45y4g0t/MGH8dgJKOA402E8/y2E\nbAQJxuBUWuw6t8AT+Yn9YRegvsk21GmD5YGW9C/9OXoSXuKdcsyC5LvJR0KqVJHF\nimsksBfxJ/oAKb+nKfuA2LRMQ+pNg8FXvrgW4JKREL6bfShi663OeA4Z6x6+a9yr\nZ8mxxg2PlMJFgkgyzJSkQUeGVQaWF0Vb8P7wbcWNrwKBgQDyOhFfuB6TBsFDSzng\nqgrGIjtEjHX29dRvYZLxTKuyUnn/DjKw2u1c6SNQtpqgUdDuHbIzIAgOqnCNcpl4\nMfTQAE2COJ3/3O8ioQlGq0TUx7ZuLDX2OYYZgBnvLtgwVf6pyL9eIdPjcZCKHmex\n7mbeIo4rCtcrrzmyGHjKowaFdwKBgQDJwuVF7V3t772snXJtfybaUY+jOfJfG64V\ncGXGE5znNwtikN8ywZG1BKpMvssu37IxkNNspKUCIGHKVkzJjGt7u5DE9CRdF6Hw\nx6mW2kKNGPQ8j5dAMdyps04GKaOzFokqu/0h9OOx2Nt6tncngcyMsBLikcCfQFJ4\nZbYiJ1AouwKBgQCpgeVCnLAYp3N7ShtYkuYzPSVIlRrAFcvxndCct9C3W2wwBpmG\nlc3hZOznwMF4S4jv+SwJBvNcf/1/nqCzMhJltLCI3mIC+XMHQrYhFB144cFSW/Hv\nOtYS5kg/zwJO4P7zhZ4Vm4qR8Zj6bsiWBYVLEdd3W4Cz+01eyi1NcMRRhQKBgDom\nw0AxVvZCOA/tXVKz6DXadiTcib/h0X36ZEr/0iROGCjzinEtm1pqGs992kALV2ez\nz0wr9Cc1wBm6X+1jXINQHzy1BVoTeqhUU8vX4oCaZaKi3DwzYt9Cf8WE8NqoLyaz\nAhVsaMgUscWfm542agdOpFLLIZKEzoBHCIS1ggQLAoGAEd/8/Od7QmJwH2rHKpz2\ncFNY+d99XD7OVi5kV4KCEng9lqzSlPzenjV6sehE+ginAqCuT8XR3+Ar3CMbSW5v\neG/cBealIYuAm5XgktnOSVpCRBcHje63j5Tmh0BuSg87a4azAJyhcjo9YPJxUGUN\nEk+aaDAVxuz5nbP+a2SnxAU=\n-----END PRIVATE KEY-----\n",
+  "client_email": "visionpilot-owner@visionpilot-221506.iam.gserviceaccount.com",
+  "client_id": "115751269974490529224",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/visionpilot-owner%40visionpilot-221506.iam.gserviceaccount.com"
+}

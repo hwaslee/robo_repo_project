@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot generator="Robot 5.0.1 (Python 3.7.5 on win32)" generated="20220705 17:57:11.650" rpa="true" schemaversion="3">
+<suite id="s1" name="Tasks" source="c:\Python\robo_repo\ocr_gcp\tasks.robot">
+<test id="s1-t1" name="© 2022 GitHub, Inc." line="68">
+<kw name="No Operation" library="BuiltIn">
+<doc>Does absolutely nothing.</doc>
+<status status="PASS" starttime="20220705 17:57:15.664" endtime="20220705 17:57:15.665"/>
+</kw>
+<status status="PASS" starttime="20220705 17:57:15.663" endtime="20220705 17:57:15.666"/>
+</test>
+<doc>Machine Learning API examples.</doc>
+<status status="PASS" starttime="20220705 17:57:11.660" endtime="20220705 17:57:15.667"/>
+</suite>
+<statistics>
+<total>
+<stat pass="1" fail="0" skip="0">All Tasks</stat>
+</total>
+<tag>
+</tag>
+<suite>
+<stat pass="1" fail="0" skip="0" id="s1" name="Tasks">Tasks</stat>
+</suite>
+</statistics>
+<errors>
+</errors>
+</robot>

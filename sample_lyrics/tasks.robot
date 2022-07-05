@@ -97,3 +97,7 @@ Handle Ad
     Click Element    css=#dismiss-button
     Unselect Frame
     Unselect Frame
+
+Test Module
+    Page Should Contain Button     css=#abc
+    

@@ -31,50 +31,65 @@ ${TEXT_SAMPLE}=     A software robot developer creates digital agents for
 
 
 *** Tasks ***
-Analyze invoice with AWS Textract and find tables from the response
-    Init Textract Client    use_robocloud_vault=True
-    ${response}=    Analyze Document
-    ...    ${INVOICE_FILE}
-    ...    ${CURDIR}${/}output${/}textract.json
-    ${tables}=    Get Tables
-    FOR    ${key}    IN    @{tables.keys()}
-        ${table}=    Create Table    ${tables["${key}"]}
-        Write Table To Csv
-        ...    ${table}
-        ...    ${CURDIR}${/}output${/}table_${key}.csv
-    END
+# Analyze invoice with AWS Textract and find tables from the response
+#    Init Textract Client    use_robocloud_vault=True
+#    ${response}=    Analyze Document
+#    ...    ${INVOICE_FILE}
+#    ...    ${CURDIR}${/}output${/}textract.json
+#    ${tables}=    Get Tables
+#    FOR    ${key}    IN    @{tables.keys()}
+#    ${table}=    Create Table    ${tables["${key}"]}
+#    Write Table To Csv
+#    ...    ${table}
+#    ...    ${CURDIR}${/}output${/}table_${key}.csv
+#    END
 
-Analyze text sample with Azure
-    Init Text Analytics Service    use_robocloud_vault=True
-    Detect Language
-    ...    Vilken språk talar man in Åbo?
-    ...    ${CURDIR}${/}output${/}text_lang.json
-    Key Phrases
-    ...    ${TEXT_SAMPLE}
-    ...    ${CURDIR}${/}output${/}text_phrases.json
-    Sentiment analyze
-    ...    ${TEXT_SAMPLE}
-    ...    ${CURDIR}${/}output${/}text_sentiment.json
+# Analyze text sample with Azure
+#    Init Text Analytics Service    use_robocloud_vault=True
+#    Detect Language
+#    ...    Vilken språk talar man in Åbo?
+#    ...    ${CURDIR}${/}output${/}text_lang.json
+#    Key Phrases
+#    ...    ${TEXT_SAMPLE}
+#    ...    ${CURDIR}${/}output${/}text_phrases.json
+#    Sentiment analyze
+#    ...    ${TEXT_SAMPLE}
+#    ...    ${CURDIR}${/}output${/}text_sentiment.json
+
+Init Google services
+    Init Vision    C:\\Python\\robo_repo\\z.doc\\GoogleCloudVision\\visionpilot-eadd89fa0d23.json
 
 Analyze image with Google Vision AI
-    Init Vision    use_robocorp_vault=True
+    # Init Vision    use_robocorp_vault=True
+    # Init Vision    C:\\Python\\robo_repo\\z.doc\\GoogleCloudVision\\visionpilot-eadd89fa0d23.json
+    # Init Vision    C:\\Python\\robo_repo\\z.doc\\GoogleCloudVision\\visionpilot-eadd89fa0d23.json
+    No Operation
+
+Minimal task
     ${labels}=    Detect Labels
     ...    image_file=${PICTURE_FILE}
     ...    json_file=${CURDIR}${/}output${/}vision_labels.json
-    ${text}=    Detect Text
-    ...    image_file=${PICTURE_FILE}
-    ...    json_file=${CURDIR}${/}output${/}vision_text.json
+    # ${text}=    Detect Text
+    # ...    image_file=${PICTURE_FILE}
+    # ...    json_file=${CURDIR}${/}output${/}vision_text.json
 
 © 2022 GitHub, Inc.
+    No Operation
 
 Footer navigation
+    No Operation
 
 Terms
+    No Operation
 
 Privacy
+    No Operation
 
 Security
+    No Operation
 
 Status
+    No Operation
 
 Docs
+    No Operation
