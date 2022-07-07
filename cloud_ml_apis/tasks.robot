@@ -11,13 +11,14 @@ Library             RPA.Cloud.Azure
 ...                 region=eastus
 ...                 robocloud_vault_name=azure
 Library             RPA.Cloud.Google
-...                 vault_name=gcp
-...                 vault_secret_key=json_content
+# ...    vault_name=gcp
+# ...    vault_secret_key=json_content
 
 
 *** Variables ***
 ${INVOICE_FILE}=    ${CURDIR}${/}sample_files${/}invoice.png
-${PICTURE_FILE}=    ${CURDIR}${/}sample_files${/}picture.jpg
+# ${PICTURE_FILE}=    ${CURDIR}${/}sample_files${/}picture.jpg
+${PICTURE_FILE}=    ${CURDIR}${/}sample_files${/}picture2.jpg
 ${TEXT_SAMPLE}=     A software robot developer creates digital agents for
 ...                 robotic process automation (RPA), test automation,
 ...                 application monitoring, or some other use. Tens of thousands
@@ -58,7 +59,8 @@ ${TEXT_SAMPLE}=     A software robot developer creates digital agents for
 
 Analyze image with Google Vision AI
     # Init Vision    use_robocorp_vault=True
-    Init Vision    ${/}Users${/}LnY${/}visionpilot-eadd89fa0d23.json
+    # Init Vision    # working well with system variable GOOGLE_...
+    Init Vision    ${/}Users${/}LnY${/}my-robo-project-220706-58354bda6e32.json
     ${labels}=    Detect Labels
     ...    image_file=${PICTURE_FILE}
     ...    json_file=${CURDIR}${/}output${/}vision_labels.json
