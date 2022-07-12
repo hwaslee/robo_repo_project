@@ -1,7 +1,3 @@
-*** Comments ***
-// Orders module missing error
-
-
 *** Settings ***
 Documentation       Swag order robot. Places orders at https://www.saucedemo.com/
 ...                 by processing a spreadsheet of orders and ordering the
@@ -16,6 +12,7 @@ Library             RPA.Robocorp.Vault
 
 
 *** Variables ***
+# Not working -- ${RPA_SECRET_FILE}=     C:${/}Users${/}LnY${/}vault.json
 ${EXCEL_FILE_NAME}=     Data.xlsx
 ${EXCEL_FILE_URL}=      https://github.com/robocorp/example-activities/raw/master/web-store-order-processor/devdata/${EXCEL_FILE_NAME}
 ${SWAG_LABS_URL}=       https://www.saucedemo.com
