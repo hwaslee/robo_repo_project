@@ -13,8 +13,9 @@ class Orders:
         tables = Tables()
         print('3', type(tables))
         table = tables.create_table(rows)
-        print('4', table)
+        print('4-1', table)
         tables.filter_empty_rows(table)
+        print('4-2', table)
 
         orders = []
         for row in table:
@@ -31,6 +32,6 @@ class Orders:
         return orders
 
 
-if __name__ == '__main__':
-    orders_obj = Orders()
-    orders = orders_obj.get_orders("..\Data.xlsx")
+# if __name__ == '__main__':
+#     orders_obj = Orders()
+#     orders = orders_obj.get_orders("..\Data.xlsx")

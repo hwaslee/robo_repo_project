@@ -9,10 +9,14 @@ Library             Orders
 Library             RPA.Browser.Selenium
 Library             RPA.HTTP
 Library             RPA.Robocorp.Vault
+Library             RPA.JavaAccessBridge
+Library             XML
+
+Test Teardown       NONE
 
 
 *** Variables ***
-# Not working -- ${RPA_SECRET_FILE}=     C:${/}Users${/}LnY${/}vault.json
+# Not working -- ${RPA_SECRET_FILE}=    C:${/}Users${/}LnY${/}vault.json
 ${EXCEL_FILE_NAME}=     Data.xlsx
 ${EXCEL_FILE_URL}=      https://github.com/robocorp/example-activities/raw/master/web-store-order-processor/devdata/${EXCEL_FILE_NAME}
 ${SWAG_LABS_URL}=       https://www.saucedemo.com
@@ -27,6 +31,7 @@ Place orders
 Process orders
     Open Swag Labs
     ${secret}=    Get Secret    swaglabs
+    Log To Console    ----1. ${secret} ----
     Wait Until Keyword Succeeds    3x    1s    Login    ${secret}[username]    ${secret}[password]
     ${orders}=    Collect orders
     FOR    ${order}    IN    @{orders}
@@ -72,22 +77,26 @@ Open products page
     Go To    ${SWAG_LABS_URL}/inventory.html
 
 Assert cart is empty
-    Element Text Should Be    css:.shopping_cart_link    ${EMPTY}
+    RPA.Browser.Selenium.Element Text Should Be    css:.shopping_cart_link    ${EMPTY}
     Page Should Not Contain Element    css:.shopping_cart_badge
 
 Add product to cart
     [Arguments]    ${order}
     ${product_name}=    Set Variable    ${order["item"]}
+    Log To Console    ----2-1. product_name: ${product_name}
     ${locator}=    Set Variable
     ...    xpath://div[@class="inventory_item" and descendant::div[contains(text(), "${product_name}")]]
+    Log To Console    ----2-2. locator: ${locator}
     ${product}=    Get WebElement    ${locator}
+    Log To Console    ----2-3. product webelement: ${product}
     ${add_to_cart_button}=    Set Variable    ${product.find_element_by_class_name("btn_primary")}
+    Log To Console    ----2-4. add_to_cart_button: ${add_to_cart_button}
     Click Button    ${add_to_cart_button}
     Assert items in cart    1
 
 Assert items in cart
     [Arguments]    ${quantity}
-    Element Text Should Be    css:.shopping_cart_badge    ${quantity}
+    RPA.Browser.Selenium.Element Text Should Be    css:.shopping_cart_badge    ${quantity}
 
 Open cart
     Click Link    css:.shopping_cart_link
@@ -99,8 +108,12 @@ Assert cart page
 
 Assert one product in cart
     [Arguments]    ${order}
-    Element Text Should Be    css:.cart_quantity    1
-    Element Text Should Be    css:.inventory_item_name    ${order["item"]}
+    RPA.Browser.Selenium.Element Text Should Be    css:.cart_quantity    1
+    RPA.Browser.Selenium.Element Text Should Be    css:.inventory_item_name    ${order["item"]}
+
+    Log To Console    ---- 3.0
+    ${value}=    RPA.Browser.Selenium.Get Text    css:.cart_quantity
+    Log To Console    ---- 3.1 [${value}]
 
 Checkout
     [Arguments]    ${order}
