@@ -2,22 +2,11 @@
 Library     RPA.JSON
 Library     Collections
 Library     BuiltIn
-Library     RPA.FileSystem
-
-
-*** Variables ***
-${filename}         ${OUTPUT_DIR}${/}dict_data.json
-&{all_picks}
-&{loaded_picks}
 
 
 *** Tasks ***
 JSON Handling
     JSON operations
-    Save To JsonFile
-    ${contents}=    Load Data From JsonFile
-    Search Pick By Key    ${contents}
-    Search Value From Dict    ${contents}
 
 
 *** Keywords ***
@@ -43,57 +32,6 @@ JSON Handling
 
 #    Dictionary Should Contain Key    ${current_record}[address]    latitude
 #    Log To Console    \n${current_record}
-
-Save To JsonFile
-    @{picks}=    Create List    1000    1001    10002    10003    1004
-    FOR    ${pick}    IN    @{picks}
-        TRY
-            Set To Dictionary    ${all_picks}    ${pick}    {1,2,3,4,5,6}
-            Log To Console    ----A. ${all_picks}
-        EXCEPT
-            Log To Console    ----A-1. exception ....
-        END
-    END
-    Save JSON to file    ${all_picks}    ${filename}
-
-Load Data From JsonFile
-    ${file_content}=    Read File    ${filename}
-    Log To Console    ----B. ${file_content}
-    # RETURN    ${file_content}    # Expected arg1 to be dict-like, got string instead.
-
-    # &{loaded_picks}=    Convert To Dictionary    ${file_content}    # dictionary update sequence element #0 has length 1; 2 is required
-    &{loaded_picks}=    Evaluate    ${file_content}
-    Log To Console    ----C-1. ${loaded_picks}
-
-    ${the type}=    Evaluate    type(${loaded_picks})
-    Log To Console    ----C-2. The argument is of type ${the type}
-
-    RETURN    ${loaded_picks}
-    # RETURN    &{loaded_picks}
-
-Search Pick By Key
-    [Arguments]    ${contents}
-    ${the type}=    Evaluate    type(${contents})
-    Log To Console    ----D. The argument is of type ${the type}
-
-    # ${value}=    Get From Dictionary    ${loaded_picks}    1001    # Dictionary does not contain key '1001'.
-    ${value}=    Get From Dictionary    ${contents}    1001    # OK
-    Log To Console    ----E. ${value}
-
-Search Value From Dict
-    [Arguments]    ${dict}
-    ${the type}=    Evaluate    type(${dict})
-    Log To Console    ----H. The argument is of type ${the type}
-
-    @{nums}=    Create List    1001    1002    1004
-    FOR    ${val}    IN    @{nums}
-        TRY
-            ${value}=    Get From Dictionary    ${dict}    ${val}
-            Log To Console    ----I. ${value} found
-        EXCEPT
-            Log To Console    ----J. No number ${val}
-        END
-    END
 
 Save string to file
     ${value}=    Set Variable
