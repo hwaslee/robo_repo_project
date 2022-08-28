@@ -21,6 +21,7 @@ Store the latest tweets by given user name
     Scroll down to load dynamic content
     Store the tweets
     [Teardown]    Close Browser
+    Log To Console    "Done"
 
 
 *** Keywords ***
