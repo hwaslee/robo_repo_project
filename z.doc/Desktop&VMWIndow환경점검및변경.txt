@@ -1,0 +1,13 @@
+VS Code 내 Python: Default Interpreter Path
+Path to default Python to use when extension loads up for the first time, no longer used once an interpreter is selected for the workspace. 
+See https://aka.ms/AAfekmf to understand when this is used
+	c:\ProgramData\robocorp\ht\9ba093e_b1f3c24_d4ec2478\python.exe  --> ver: 3.9.13
+
+
+python --version
+	Python 3.9.12	
+
+
+C:\Users\LnY\.conda\environments.txt
+	C:\Users\LnY\anaconda3\envs\pyenv39	--> C:\Users\LnY\anaconda3\envs\pyenv39\python.exe 존재 --> ver: 3.9.12
+	C:\Users\LnY\anaconda3
