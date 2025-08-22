@@ -1,4 +1,5 @@
 import time
+import re
 from robocorp.tasks import task
 from robocorp import browser
 
@@ -66,38 +67,71 @@ def get_all_product_list():
     time.sleep(3)
 
     last_page = get_last_page_no()        
+    if last_page < 0:
+        print("마지막 페이지 No. 인식 오류, 종료됨")
+        exit
+        
     print(f'마지막 페이지: {last_page}')
     
     for page_no in range(2, last_page+1):
         goto_page(page_no)
+        get_page_products(page_no)
+        
         page_no = page_no + 1
-        time.sleep(1)
+
     
-''' '''
+''' get the number of pages '''
 def get_last_page_no():
-    return 47
+    # page = browser.page()        
+    
+    try:
+        scroll_trigger_locator = browser.page().locator("//form[1]/div[6]")
+        scroll_trigger_locator.scroll_into_view_if_needed()
+
+        # 1. '마지막 페이지' 텍스트를 가진 <a> 요소를 찾음
+        # last_page_locator = browser.page().locator('//a[text()="마지막 페이지"]')
+        last_page_locator = browser.page().locator("//form[1]/div[6]/a[11]")
+        # last_page_locator.wait_for()
+        
+        # 2. 요소의 'href' 속성 값을 가져옴
+        href_value = last_page_locator.get_attribute("href", timeout=3000)
+        
+        # 3. 정규 표현식으로 'GoPage(X,Y)'에서 Y 값을 추출
+        match = re.search(r'GoPage\(\d+,\s*(\d+)\);', href_value)
+        
+        if match:
+            max_page_number = int(match.group(1))
+            print(f"마지막 페이지 번호: {max_page_number}")
+            return max_page_number
+        else:
+            print("마지막 페이지 번호를 찾을 수 없습니다.")
+            return -1
+    except Exception as e:
+        print(f"Exception 발생: {e}")
+        return -1
     
 ''' Display products in specified page '''            
 def goto_page(page_no):
     page = browser.page()        
     
     page_idx = (page_no - 1) // 10
-    print(f'PG_IDX:{page_idx}, PAGE_NO: {page_no}')
+    # print(f'PG_IDX:{page_idx}, PAGE_NO: {page_no}')
 
     href_link = f'a[href="javascript:GoPage({page_idx},{page_no});"]'
-    print(f"1.....{href_link}")
-    # page.click('a[href="javascript:GoPage(0,3);"]')     # to debug
     browser.page().locator(f'{href_link}').scroll_into_view_if_needed()
-    print("2.....")
     page.click(f'{href_link}')
 
-    print("3.....")
     pg_url = f'http://newonpan.getmall.kr/front/productsearch.php?block={page_idx}&gotopage={page_no}&sort=&codeA=&codeB=&codeC=&codeD=&minprice=&maxprice=&s_check=all&search=0&search1=&listnum=20'    
     page.wait_for_url(url=pg_url, timeout=5000)    # working
     
+''' Access each product in the page '''    
+def get_page_products(page_no):    
+    page = browser.page()  
     
-    # http://newonpan.getmall.kr/front/productsearch.php?block=0&gotopage=2&sort=&codeA=&codeB=&codeC=&codeD=&minprice=&maxprice=&s_check=all&search=0&search1=&listnum=20
-    # http://newonpan.getmall.kr/front/productsearch.php?block=0&gotopage=3&sort=&codeA=&codeB=&codeC=&codeD=&minprice=&maxprice=&s_check=all&search=0&search1=&listnum=20
-    # http://newonpan.getmall.kr/front/productsearch.php?block=0&gotopage=4&sort=&codeA=&codeB=&codeC=&codeD=&minprice=&maxprice=&s_check=all&search=0&search1=&listnum=20
-    # http://newonpan.getmall.kr/front/productsearch.php?block=1&gotopage=11&sort=&codeA=&codeB=&codeC=&codeD=&minprice=&maxprice=&s_check=all&search=0&search1=&listnum=20
-    # <a href="javascript:GoPage(0,2);" onmouseout="window.status='';return true" onmouseover="window.status='페이지 : 2';return true"><font class="prlist">[2]</font></a>
+    body_locator = browser.page().locator("//table/tbody")
+    locators = body_locator.all()
+    print(f"1.......... PAGE_NO:{page_no}, COUNT: {locators.count}")
+    locators = body_locator.get_by_role('tr').all()
+    print(f"2.......... PAGE_NO:{page_no}, COUNT: {locators.index}")
+    for li in page.get_by_role('tr').all():
+        print(li.all_inner_texts())
