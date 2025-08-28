@@ -1,5 +1,7 @@
 import time
 import re
+import openpyxl
+from datetime import datetime
 from urllib.parse import urljoin
 from urllib.parse import quote
 from robocorp.tasks import task
@@ -11,6 +13,8 @@ from RPA.PDF import PDF
 # from RPA.Browser.Selenium import Browser
 
 keyword = "안전"        #   "0"           #   "안전"
+workbook = ''
+sheet = ''
 
 """ Insert the sales data for the week and export it as a PDF """
 @task
@@ -20,11 +24,32 @@ def get_product_inventory():
         # height=1080,
         slowmo=500,
     )
+    init_excel_file()
     open_the_getmall_website()
     log_in()
     # get_all_product_list()
     get_product_stock()
+    close_workbook()
     
+''' initialize excel file '''
+def init_excel_file():
+    global workbook
+    global sheet
+    
+    # 새 workbook (엑셀 파일) 생성
+    workbook = openpyxl.Workbook()
+
+    # 현재 활성화된 워크시트 선택 - 기본 시트명 'Sheet'
+    sheet = workbook.active
+    sheet.title = "온판 재고"
+    
+    # 셀에 headline 쓰기 - 직접 셀에 접근하여 값을 할당합니다.
+    sheet['A1'] = "제품명"
+    sheet['B1'] = "기본 가격"
+    sheet['C1'] = "옵션명"
+    sheet['D1'] = "옵션 가격"
+    sheet['E1'] = "재고"
+
     
 """ Navigates to the given URL """
 def open_the_getmall_website():
@@ -175,12 +200,12 @@ def extract_table_data(page_no):
             #     continue
         
         if href_url != "":
-            save_product_stock(page_no, href_url)
-            print(f"\tPAGE:{page_no}, Product Index: {row_index + 1} data extraction completed\n")
+            get_prod_option_data(page_no, href_url)
+            print(f"PAGE:{page_no}, Product Index: {row_index + 1} data extraction completed\n")
 
 
 ''' move to prod page and save inventory to excel file '''
-def save_product_stock(page_no, href_url):
+def get_prod_option_data(page_no, href_url):
     print(f'\tFor prod in PG:{page_no}, will save the inventory into Excel')
     page = browser.page()
     # Not working, Protocol error (Page.navigate): 
@@ -195,10 +220,53 @@ def save_product_stock(page_no, href_url):
     page.wait_for_url(url=absolute_url, timeout=5000) 
     
     # access invenrory and save them to excel file
+    save_data_to_excel()
     
-    
-    print("\twill go back to prod page")
+    print("will go back to prod page")
     browser.page().go_back(timeout=1000)
+    
+    
+''' save data (prodname, price, options,..) to excel file '''    
+def save_data_to_excel():
+    global workbook
+    global sheet
+    
+    page = browser.page()
+    
+    prname = page.locator("div.prdetailname").text_content(timeout=500)
+    prprice = page.locator("span#idx_price").inner_text(timeout=500)
+    print(f'Name:{prname}, Price:{prprice}')
+    
+    # option 정보를 추출
+    select_locator = page.locator("select[class='basic_select']")
+    option_locators = select_locator.locator("option").all()
+    option_texts = [opt.inner_text() for opt in option_locators] 
+    # option_texts = option_texts.replace("\n","").replace("\t","")   
+    print(f"type: {type(option_texts)}, Options: {option_texts}, ")
+    
+    for option in option_texts:
+        option_list = option.split('|')
+        if any("(필수)" in item for item in option_list) or any("---" in item for item in option_list):
+            continue
+        row_data = [prname, prprice] + option_list
+        sheet.append(row_data)
+        
+        prname = ' '
+        prprice = ' '    
+    
+    
+def close_workbook():
+    global workbook
+    global sheet
+    
+    now = datetime.now()
+    # YYYY-MM-DD 형식으로 변환
+    formatted_date = now.strftime('%y%m%d')        
+    filename = 'onpan_inventory_' + formatted_date + ".xlsx"
+    
+    workbook.save(filename)
+    
+    
     
     
     
