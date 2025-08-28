@@ -1,6 +1,8 @@
 import time
 import re
 import openpyxl
+import traceback
+import sys
 from datetime import datetime
 from urllib.parse import urljoin
 from urllib.parse import quote
@@ -12,9 +14,11 @@ from RPA.Excel.Files import Files
 from RPA.PDF import PDF
 # from RPA.Browser.Selenium import Browser
 
-keyword = "안전"        #   "0"           #   "안전"
+keyword = "0"   # "MINE"    # "루어"    # "스트링"  # "루어"    # "다용도"  # "호신"    # "안전"
 workbook = ''
 sheet = ''
+condition = '상품명'      # ''
+exclude_list = ['[MINE]']
 
 """ Insert the sales data for the week and export it as a PDF """
 @task
@@ -24,12 +28,17 @@ def get_product_inventory():
         # height=1080,
         slowmo=500,
     )
-    init_excel_file()
-    open_the_getmall_website()
-    log_in()
-    # get_all_product_list()
-    get_product_stock()
-    close_workbook()
+    try: 
+        init_excel_file()
+        open_the_getmall_website()
+        log_in()
+        # get_all_product_list()
+        get_product_stock()
+    except Exception as e:
+        print(f'exceptop {e} 발생')
+        traceback.print_exc(file=sys.stdout)    # sys.stdout으로 출력하여 콘솔에 보이게 함
+    finally:
+        close_workbook()
     
 ''' initialize excel file '''
 def init_excel_file():
@@ -144,25 +153,39 @@ def get_product_stock():
 
 """ 현재 상품 페이지의 테이블 데이터를 순차적으로 추출 """
 def extract_table_data(page_no):
+    global exclude_list
+    
     page = browser.page()
     
     # 테이블의 모든 행(tr) 요소 검색
     # browser.locator("table tr")는 CSS Selector를 사용.
     tr_rows = page.locator("table tbody tr td table tbody").all()
-    
+
     # tbody는 상품별, 따라서 상품별 반복.
     for row_index, row_element in enumerate(tr_rows):
-        print(f"========== PAGE:{page_no}, Product Index: {row_index + 1}")
+        print(f"========== PAGE:{page_no}, Product Index: {row_index+1}/{len(tr_rows)}")
         
         # 현재 행(tr) 내부에 대해 locator.all()을 사용하여 여러 개의 요소를 리스트로 모든 셀(td) 검색
         td_cells = row_element.locator("td").all()
-       
+        print(f"PAGE:{page_no},  {len(td_cells)} TDs in td_cells ")
+        
+        # 상품 검색 화면에 비정상적인 상품 및 layout 존재하여, 이 상품들은 skip
+        if row_element.locator("p.prname").is_visible(timeout=500):        
+            prod_name = row_element.locator("p.prname").text_content(timeout=500)
+            if prod_name in exclude_list:
+                print(f"PAGE:{page_no}, Product Index: {row_index}, Name: {prod_name} skipped\n")
+                continue
+               
         href_url = ""
         for cell_index, cell_element in enumerate(td_cells):
-             # 각 셀의 href, 상품명을 추출.
+            # td 아래 table이 없으면 skip
+            if not cell_element.locator('table').is_visible:
+                continue
+        
+            # 각 셀의 href, 상품명을 추출.
             # cell_text = cell_element.text_content()
             # print(f"  > Cell {cell_index + 1}: {cellcell_text}")
-            all_text = cell_element.all_inner_texts
+            # all_text = cell_element.all_inner_texts
             # print(f"\t1.--- Cell:{cell_index + 1}, {all_text}")
             
             # 2. WORKING, so commented out not to be changed
@@ -175,7 +198,11 @@ def extract_table_data(page_no):
             # 3. WORKING, so commented out not to be changed    
             xpath_str = "a[href]"   
             if cell_element.locator(xpath_str).is_visible(timeout=500):
-                href_url = cell_element.locator(xpath_str).get_attribute('href', timeout=500)
+                temp_url = cell_element.locator(xpath_str).get_attribute('href', timeout=500)
+                # 상품 페이지에 뜬금없이 "태그..."라는 tag가 있어, 이를 무시
+                if "tag.php" in temp_url or "GoMinishop" in temp_url:
+                    continue
+                href_url = temp_url
                 print(f"\t3.--- url:{href_url}")
             # else:
             #     print(f'\t3.--- {xpath_str} is NOT visible') 
@@ -201,7 +228,7 @@ def extract_table_data(page_no):
         
         if href_url != "":
             get_prod_option_data(page_no, href_url)
-            print(f"PAGE:{page_no}, Product Index: {row_index + 1} data extraction completed\n")
+            print(f"PAGE:{page_no}, Product Index: {row_index} data extraction completed\n")
 
 
 ''' move to prod page and save inventory to excel file '''
