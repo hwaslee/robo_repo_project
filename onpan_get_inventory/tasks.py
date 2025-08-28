@@ -1,5 +1,6 @@
 import time
 import re
+from urllib.parse import urljoin
 from urllib.parse import quote
 from robocorp.tasks import task
 from robocorp import browser
@@ -7,11 +8,9 @@ from robocorp import browser
 from RPA.HTTP import HTTP
 from RPA.Excel.Files import Files
 from RPA.PDF import PDF
-
-
 # from RPA.Browser.Selenium import Browser
 
-keyword = "0"        #   "0"           #   "안전"
+keyword = "안전"        #   "0"           #   "안전"
 
 """ Insert the sales data for the week and export it as a PDF """
 @task
@@ -27,7 +26,6 @@ def get_product_inventory():
     get_product_stock()
     
     
-
 """ Navigates to the given URL """
 def open_the_getmall_website():
     # browser.goto("http://newonpan.getmall.kr/front/login.php?chUrl=%2FB2B%2Fex_order.php")
@@ -37,6 +35,7 @@ def open_the_getmall_website():
     
     # browser = Browser()
     # browser.open_available_browser("http://newonpan.getmall.kr/front/login.php?chUrl=%2FB2B%2Fex_order.php")
+    
     
 """ Fills in the login form and clicks the 'Log in' button """
 def log_in():
@@ -62,33 +61,6 @@ def log_in():
         print(f"ERROR: {e} OCCURRED....")
         exit
 
-''' get the list of all products, separated by page no '''    
-def get_all_product_list():
-    global keyword
-    page = browser.page()        
-    page.fill('input[name="search"]', keyword)
-    page.click('a[href="javascript:TopSearchCheck()"]')
-    
-    # quote() 함수로 URL 인코딩 수행
-    encoded_keyword = quote(keyword)
-    search_url = f"http://newonpan.getmall.kr/front/productsearch.php?search={encoded_keyword}"
-    print(f'URL: {search_url}')
-    page.wait_for_url(search_url, timeout=5000) 
-
-    last_page = get_last_page_no()        
-    if last_page < 0:
-        print("마지막 페이지 No. 인식 오류, 종료됨")
-        exit
-    print(f'마지막 페이지: {last_page}')
-    
-    # page 1
-    # get_page_products2(1)
-    
-    for page_no in range(2, last_page+1):
-        goto_page(page_no, keyword)
-        prods = get_page_products2(page_no)
-        
-        page_no = page_no + 1
 
 ''' access each page and get stock of product in page '''
 def get_product_stock():
@@ -105,9 +77,11 @@ def get_product_stock():
     
     page_no = 1
     while True:
-        # go to next page
+        # extract each product info by clicking product shown up in the screen.
+        extract_table_data(page_no)  
+                    
+        # Page navigation (going to next page)
         # first, click page_no
-
         page_no = page_no + 1
         page_idx = (page_no - 1) // 10
         href_link = f'a[href="javascript:GoPage({page_idx},{page_no});"]'
@@ -141,7 +115,124 @@ def get_product_stock():
         # 더 이상 페이지가 없으면 break
         print('=============== 더 이상 페이지 없어 종료')
         break
+
+
+""" 현재 상품 페이지의 테이블 데이터를 순차적으로 추출 """
+def extract_table_data(page_no):
+    page = browser.page()
     
+    # 테이블의 모든 행(tr) 요소 검색
+    # browser.locator("table tr")는 CSS Selector를 사용.
+    tr_rows = page.locator("table tbody tr td table tbody").all()
+    
+    # tbody는 상품별, 따라서 상품별 반복.
+    for row_index, row_element in enumerate(tr_rows):
+        print(f"========== PAGE:{page_no}, Product Index: {row_index + 1}")
+        
+        # 현재 행(tr) 내부에 대해 locator.all()을 사용하여 여러 개의 요소를 리스트로 모든 셀(td) 검색
+        td_cells = row_element.locator("td").all()
+       
+        href_url = ""
+        for cell_index, cell_element in enumerate(td_cells):
+             # 각 셀의 href, 상품명을 추출.
+            # cell_text = cell_element.text_content()
+            # print(f"  > Cell {cell_index + 1}: {cellcell_text}")
+            all_text = cell_element.all_inner_texts
+            # print(f"\t1.--- Cell:{cell_index + 1}, {all_text}")
+            
+            # 2. WORKING, so commented out not to be changed
+            # if cell_element.locator('a[href]').is_visible(timeout=500):
+            #     href_link = cell_element.locator('a[href]').get_attribute('href', timeout=500)
+            #     print(f"\t2.--- href:{href_link}")
+            # else:
+            #     print(f'"\t2.--- a[href]" is NOT visible')                
+                
+            # 3. WORKING, so commented out not to be changed    
+            xpath_str = "a[href]"   
+            if cell_element.locator(xpath_str).is_visible(timeout=500):
+                href_url = cell_element.locator(xpath_str).get_attribute('href', timeout=500)
+                print(f"\t3.--- url:{href_url}")
+            # else:
+            #     print(f'\t3.--- {xpath_str} is NOT visible') 
+            
+            # 4. WORKING, so commented out not to be changed 
+            # 3번째 p.prname에서 유효한 값 추출        
+            # xpath_str = "a p.prname"   
+            # if cell_element.locator(xpath_str).is_visible(timeout=500):
+            #     name_locator = cell_element.locator(xpath_str)
+            #     # .get_attribute('prname', timeout=500)
+            #     prname = name_locator.text_content()
+            #     print(f"\t4.--- prname:{prname}")
+            # else:
+            #     print(f'\t4.--- {xpath_str} is NOT visible') 
+                
+            xpath_str = 'p.prprice'
+            if cell_element.locator(xpath_str).is_visible(timeout=500):
+                prprice = cell_element.locator(xpath_str).text_content(timeout=500)
+                print(f"\t5.--- price:{prprice}")
+            # else:
+            #     print(f'\t5.--- {xpath_str} is NOT visible')       
+            #     continue
+        
+        if href_url != "":
+            save_product_stock(page_no, href_url)
+            print(f"\tPAGE:{page_no}, Product Index: {row_index + 1} data extraction completed\n")
+
+
+''' move to prod page and save inventory to excel file '''
+def save_product_stock(page_no, href_url):
+    print(f'\tFor prod in PG:{page_no}, will save the inventory into Excel')
+    page = browser.page()
+    # Not working, Protocol error (Page.navigate): 
+    # Cannot navigate to invalid URL 
+    # Call log: navigating to "../front/productdetail.php?productcode=007002000000000073" 
+    # browser.goto(href_url)    
+
+    page.click(f'a[href="{href_url}"]')  
+    base_url = "http://newonpan.getmall.kr/front/"
+    # urljoin() 함수를 사용하여 두 URL을 결합
+    absolute_url = urljoin(base_url, href_url)
+    page.wait_for_url(url=absolute_url, timeout=5000) 
+    
+    # access invenrory and save them to excel file
+    
+    
+    print("\twill go back to prod page")
+    browser.page().go_back(timeout=1000)
+    
+    
+    
+ ##### =======================================================   
+    
+
+''' get the list of all products, separated by page no '''    
+def get_all_product_list():
+    global keyword
+    page = browser.page()        
+    page.fill('input[name="search"]', keyword)
+    page.click('a[href="javascript:TopSearchCheck()"]')
+    
+    # quote() 함수로 URL 인코딩 수행
+    encoded_keyword = quote(keyword)
+    search_url = f"http://newonpan.getmall.kr/front/productsearch.php?search={encoded_keyword}"
+    print(f'URL: {search_url}')
+    page.wait_for_url(search_url, timeout=5000) 
+
+    last_page = get_last_page_no()        
+    if last_page < 0:
+        print("마지막 페이지 No. 인식 오류, 종료됨")
+        exit
+    print(f'마지막 페이지: {last_page}')
+    
+    # page 1
+    # get_page_products2(1)
+    
+    for page_no in range(2, last_page+1):
+        goto_page(page_no, keyword)
+        prods = get_page_products2(page_no)
+        
+        page_no = page_no + 1
+
  
 ''' get the number of pages '''
 def get_last_page_no():
