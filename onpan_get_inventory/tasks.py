@@ -289,7 +289,7 @@ def close_workbook():
     now = datetime.now()
     # YYYY-MM-DD 형식으로 변환
     formatted_date = now.strftime('%y%m%d')        
-    filename = 'onpan_inventory_' + formatted_date + ".xlsx"
+    filename = './output/onpan_inventory_' + formatted_date + ".xlsx"
     
     workbook.save(filename)
     
