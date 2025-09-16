@@ -9,12 +9,6 @@ from RPA.PDF import PDF
 """ Select python 3.12.8 as defined in conda.yaml """
 
 
-# *** Settings ***
-# Documentation     Template robot main suite.
-
-# *** Tasks ***
-
-
 @task
 def robot_spare_bin_python():
     """ Insert the sales data for the week and export it as a PDF """
