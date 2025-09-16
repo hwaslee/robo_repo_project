@@ -14,7 +14,7 @@ from RPA.Excel.Files import Files
 from RPA.PDF import PDF
 # from RPA.Browser.Selenium import Browser
 
-keyword = "0"   # "MINE"    # "루어"    # "스트링"  # "루어"    # "다용도"  # "호신"    # "안전"
+keywords = ["현관", "이랑", "로코코", "아크릴", "이젤", "포스터"]   # "MINE"    # "루어"    # "스트링"  # "루어"    # "다용도"  # "호신"    # "안전"
 workbook = ''
 sheet = ''
 condition = '상품명'      # ''
@@ -33,7 +33,8 @@ def get_product_inventory():
         open_the_getmall_website()
         log_in()
         # get_all_product_list()
-        get_product_stock()
+        for keyword in keywords: 
+            get_product_stock(keyword)
     except Exception as e:
         print(f'exceptop {e} 발생')
         traceback.print_exc(file=sys.stdout)    # sys.stdout으로 출력하여 콘솔에 보이게 함
@@ -53,11 +54,12 @@ def init_excel_file():
     sheet.title = "온판 재고"
     
     # 셀에 headline 쓰기 - 직접 셀에 접근하여 값을 할당합니다.
-    sheet['A1'] = "제품명"
-    sheet['B1'] = "기본 가격"
-    sheet['C1'] = "옵션명"
-    sheet['D1'] = "옵션 가격"
-    sheet['E1'] = "재고"
+    sheet['A1'] = "키워드"
+    sheet['B1'] = "제품명"
+    sheet['C1'] = "기본 가격"
+    sheet['D1'] = "옵션명"
+    sheet['E1'] = "옵션 가격"
+    sheet['F1'] = "재고"
 
     
 """ Navigates to the given URL """
@@ -97,8 +99,8 @@ def log_in():
 
 
 ''' access each page and get stock of product in page '''
-def get_product_stock():
-    global keyword
+def get_product_stock(keyword):
+    # global keyword
     page = browser.page()        
     page.fill('input[name="search"]', keyword)
     page.click('a[href="javascript:TopSearchCheck()"]')
@@ -112,7 +114,7 @@ def get_product_stock():
     page_no = 1
     while True:
         # extract each product info by clicking product shown up in the screen.
-        extract_table_data(page_no)  
+        extract_table_data(page_no, keyword)  
                     
         # Page navigation (going to next page)
         # first, click page_no
@@ -152,7 +154,7 @@ def get_product_stock():
 
 
 """ 현재 상품 페이지의 테이블 데이터를 순차적으로 추출 """
-def extract_table_data(page_no):
+def extract_table_data(page_no, keyword):
     global exclude_list
     
     page = browser.page()
@@ -227,12 +229,12 @@ def extract_table_data(page_no):
             #     continue
         
         if href_url != "":
-            get_prod_option_data(page_no, href_url)
+            get_prod_option_data(page_no, href_url, keyword)
             print(f"PAGE:{page_no}, Product Index: {row_index} data extraction completed\n")
 
 
 ''' move to prod page and save inventory to excel file '''
-def get_prod_option_data(page_no, href_url):
+def get_prod_option_data(page_no, href_url, keyword):
     print(f'\tFor prod in PG:{page_no}, will save the inventory into Excel')
     page = browser.page()
     # Not working, Protocol error (Page.navigate): 
@@ -247,14 +249,14 @@ def get_prod_option_data(page_no, href_url):
     page.wait_for_url(url=absolute_url, timeout=5000) 
     
     # access invenrory and save them to excel file
-    save_data_to_excel()
+    save_data_to_excel(keyword)
     
     print("will go back to prod page")
     browser.page().go_back(timeout=1000)
     
     
 ''' save data (prodname, price, options,..) to excel file '''    
-def save_data_to_excel():
+def save_data_to_excel(keyword):
     global workbook
     global sheet
     
@@ -275,8 +277,9 @@ def save_data_to_excel():
         option_list = option.split('|')
         if any("(필수)" in item for item in option_list) or any("---" in item for item in option_list):
             continue
-        row_data = [prname, prprice] + option_list
+        row_data = [keyword] + [prname, prprice] + option_list
         sheet.append(row_data)
+        keyword = " "
         
         prname = ' '
         prprice = ' '    
