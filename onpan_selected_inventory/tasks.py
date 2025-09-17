@@ -14,7 +14,7 @@ from RPA.Excel.Files import Files
 from RPA.PDF import PDF
 # from RPA.Browser.Selenium import Browser
 
-keywords = ["현관", "이랑", "로코코", "아크릴", "이젤", "포스터"]   # "MINE"    # "루어"    # "스트링"  # "루어"    # "다용도"  # "호신"    # "안전"
+keywords = ["현관", "이랑", "로코코", "아크릴", "이젤", "포스터", "3공", "대나무", "당구", "미끼", "통발", "뜰채", "종이", "시트지", "우산", "문서", "드럼", "실리콘"]  
 workbook = ''
 sheet = ''
 condition = '상품명'      # ''
