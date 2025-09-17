@@ -14,10 +14,15 @@ from RPA.Excel.Files import Files
 from RPA.PDF import PDF
 # from RPA.Browser.Selenium import Browser
 
-keywords = ["현관", "이랑", "로코코", "아크릴", "이젤", "포스터", "3공", "대나무", "당구", "통발", "뜰채", "종이", "시트지", "우산", "문서", "드럼", "실리콘"]  
+
 workbook = ''
 sheet = ''
 condition = '상품명'      # ''
+# 검색할 상품 또는 그룹 키워드를 지정 (상품명, 키워드 중간에 space가 있으면 오류 발생)
+# 그룹 키워드로 검색시 제외할 상품이 있으면 exclude_list에 상품명 추가하여 배제
+keywords = ["현관", "이랑", "로코코", "아크릴", "이젤", "포스터", "3공", "대나무", "당구", "통발", 
+            "뜰채", "종이", "시트지", "우산", "문서", "드럼", "가방보관함", "걸이식", 
+            "패브릭", "7단", "에어맥스깔창", "실리콘테이프"]  
 exclude_list = ['[MINE]', " 현관매트(소형)", "현관자석선반", "이랑매트", 
                 "리드모아 아동용 아크릴 독서대[D]",
                 "리드모아 RAH-401 높이조절 아크릴 독서대[D]",
@@ -27,6 +32,7 @@ exclude_list = ['[MINE]', " 현관매트(소형)", "현관자석선반", "이랑
                 "리드모아 휴대용 아크릴 독서대",
                 "북이음 휴대용 아크릴 독서대",
                 "아크릴 휴지케이스",
+                "아크릴꽂이-부착형",
                 "아크릴꽂이 부착형/국내조달 [K]",
                 "아크릴꽂이 L자형/국내조달 [K]",
                 "아크릴꽂이 T자형/국내조달 [K]",
@@ -40,7 +46,7 @@ exclude_list = ['[MINE]', " 현관매트(소형)", "현관자석선반", "이랑
                 "이젤-추가가방",
                 "이젤/국내조달[K]",
                 "이젤",
-                "이젤독서대",
+                "이젤독서대 ",
                 "일반형 철제 이젤[k]",
                 "포스터스탠드-추가부품(PS)",
                 "포스터스탠드",
@@ -63,6 +69,7 @@ exclude_list = ['[MINE]', " 현관매트(소형)", "현관자석선반", "이랑
                 "에어프라이어 종이호일",
                 "종이호일",
                 "한지기름종이",
+                "가방보관함",
                 "우산꽂이[D]",
                 "사쿠라 벚꽃우산",
                 "거꾸로우산 - Ray Horse",
@@ -71,7 +78,7 @@ exclude_list = ['[MINE]', " 현관매트(소형)", "현관자석선반", "이랑
                 "문서파쇄기",
                 "%%문서제단기-공동",
                 "문서제단기 부품",
-                "문서 파쇄기 – 어원트",
+                "문서 파쇄기 - 어원트",
                 "드럼패드 나사",
                 "%%드럼패드세트[k]",
                 "%%드럼스틱 B급",
@@ -86,7 +93,8 @@ exclude_list = ['[MINE]', " 현관매트(소형)", "현관자석선반", "이랑
                 "실리콘뒤꿈치깔창",
                 "실리콘조리도구",
                 "274 스포츠허리보호대 고급형",
-                "105 실리콘겔 깔창"
+                "105 실리콘겔 깔창",
+                "에어맥스깔창[K]"
                 ]
 
 """ Insert the sales data for the week and export it as a PDF """
@@ -178,7 +186,7 @@ def get_product_stock(keyword):
     encoded_keyword = quote(keyword)
     search_url = f"http://newonpan.getmall.kr/front/productsearch.php?search={encoded_keyword}"
     print(f'=============== 첫 검색 URL: {search_url}')
-    page.wait_for_url(search_url, timeout=5000)    
+    page.wait_for_url(search_url, timeout=10000)    
     
     page_no = 1
     while True:
