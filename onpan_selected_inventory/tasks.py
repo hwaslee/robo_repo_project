@@ -17,13 +17,16 @@ from RPA.PDF import PDF
 
 workbook = ''
 sheet = ''
-condition = '상품명'      # ''
+condition = '상품명'      
 # 검색할 상품 또는 그룹 키워드를 지정 (상품명, 키워드 중간에 space가 있으면 오류 발생)
 # 그룹 키워드로 검색시 제외할 상품이 있으면 exclude_list에 상품명 추가하여 배제
-keywords = ["현관", "이랑", "로코코", "아크릴", "이젤", "포스터", "3공", "대나무", "당구", "통발", 
-            "뜰채", "종이", "시트지", "우산", "문서", "드럼", "가방보관함", "걸이식", 
-            "패브릭", "7단", "에어맥스깔창", "실리콘테이프"]  
-exclude_list = ['[MINE]', " 현관매트(소형)", "현관자석선반", "이랑매트", 
+keywords = ["3공", "7단", "가방보관함", "걸이식", "도넛", "드럼", "드릴", "대나무", "당구", "뜰채", 
+            "로코코", "문서", "시트지", "실리콘테이프", "아크릴", "에어맥스깔창", "우산", "이랑", "이젤",   
+            "종이", "통발", "패브릭", "포스터", "현관" ]  
+exclude_list = ['[MINE]', 
+                "현관매트(소형)", 
+                "현관자석선반", 
+                "이랑매트", 
                 "리드모아 아동용 아크릴 독서대[D]",
                 "리드모아 RAH-401 높이조절 아크릴 독서대[D]",
                 "공신패키지",
@@ -80,8 +83,8 @@ exclude_list = ['[MINE]', " 현관매트(소형)", "현관자석선반", "이랑
                 "문서제단기 부품",
                 "문서 파쇄기 - 어원트",
                 "드럼패드 나사",
-                "%%드럼패드세트[k]",
-                "%%드럼스틱 B급",
+                "%%드럼패드세트[k]",      # "%%드럼패드세트[k]"  
+                "%%드럼스틱 B급",           # "%%드럼스틱 B급"  # [%%드럼스틱 B급]
                 "드럼패드 부품",
                 "실리콘 절연테이프[D]",
                 "실리콘 고양이컵받침[D]",
@@ -185,7 +188,7 @@ def get_product_stock(keyword):
     # quote() 함수로 URL 인코딩 수행
     encoded_keyword = quote(keyword)
     search_url = f"http://newonpan.getmall.kr/front/productsearch.php?search={encoded_keyword}"
-    print(f'=============== 첫 검색 URL: {search_url}')
+    # print(f'=============== 첫 검색 URL: {search_url}')
     page.wait_for_url(search_url, timeout=10000)    
     
     page_no = 1
@@ -199,7 +202,7 @@ def get_product_stock(keyword):
         page_idx = (page_no - 1) // 10
         href_link = f'a[href="javascript:GoPage({page_idx},{page_no});"]'
         if browser.page().locator(f'{href_link}').is_visible(timeout=500):
-            print(f"=============== 다음 페이지로 이동: 방법 1...to Page {page_no}")
+            # print(f"=============== 다음 페이지로 이동: 방법 1...to Page {page_no}")
             browser.page().locator(f'{href_link}').scroll_into_view_if_needed()
             page.click(f'{href_link}')
             # http://newonpan.getmall.kr/front/productsearch.php?block=0&gotopage=2&sort=&codeA=&codeB=&codeC=&codeD=&minprice=&maxprice=&s_check=all&search=0&search1=&listnum=20
@@ -211,7 +214,7 @@ def get_product_stock(keyword):
         # next, click "next" 
         # 'prList' 클래스를 가진 <font> 태그 안에 텍스트 '[next]'를 포함하는 요소를 찾아서 클릭
         if browser.page().locator("font.prList:has-text('[next]')").is_visible(timeout=500):
-            print(f"=============== 다음 페이지로 이동: 방법 2...to Page {page_no}")
+            # print(f"=============== 다음 페이지로 이동: 방법 2...to Page {page_no}")
             browser.page().locator("font.prList:has-text('[next]')").click()
             
             # wait
@@ -219,14 +222,14 @@ def get_product_stock(keyword):
     
         # 더 간단하게 텍스트만으로 찾기
         if browser.page().locator("[next]").is_visible(timeout=500):
-            print(f"=============== 다음 페이지로 이동: 방법 3...to Page {page_no}")
+            # print(f"=============== 다음 페이지로 이동: 방법 3...to Page {page_no}")
             browser.page().locator("[next]").click()
             
             # wait
             continue         
         
         # 더 이상 페이지가 없으면 break
-        print('=============== 더 이상 페이지 없어 종료')
+        # print('=============== 더 이상 페이지 없어 종료')
         break
 
 
@@ -242,16 +245,17 @@ def extract_table_data(page_no, keyword):
 
     # tbody는 상품별, 따라서 상품별 반복.
     for row_index, row_element in enumerate(tr_rows):
-        print(f"========== PAGE:{page_no}, Product Index: {row_index+1}/{len(tr_rows)}")
+        # print(f"========== PAGE:{page_no}, Product Index: {row_index+1}/{len(tr_rows)}")
         
         # 현재 행(tr) 내부에 대해 locator.all()을 사용하여 여러 개의 요소를 리스트로 모든 셀(td) 검색
         td_cells = row_element.locator("td").all()
-        print(f"PAGE:{page_no},  {len(td_cells)} TDs in td_cells ")
+        # print(f"PAGE:{page_no},  {len(td_cells)} TDs in td_cells ")
         
         # 상품 검색 화면에 비정상적인 상품 및 layout 존재하여, 이 상품들은 skip
         if row_element.locator("p.prname").is_visible(timeout=500):        
             prod_name = row_element.locator("p.prname").text_content(timeout=500)
-            if prod_name in exclude_list:
+            print(f'-------- product name: [{prod_name}]')
+            if prod_name.strip() in exclude_list:
                 print(f"PAGE:{page_no}, Product Index: {row_index}, Name: {prod_name} skipped\n")
                 continue
                
@@ -282,7 +286,7 @@ def extract_table_data(page_no, keyword):
                 if "tag.php" in temp_url or "GoMinishop" in temp_url:
                     continue
                 href_url = temp_url
-                print(f"\t3.--- url:{href_url}")
+                # print(f"\t3.--- url:{href_url}")
             # else:
             #     print(f'\t3.--- {xpath_str} is NOT visible') 
             
@@ -300,19 +304,19 @@ def extract_table_data(page_no, keyword):
             xpath_str = 'p.prprice'
             if cell_element.locator(xpath_str).is_visible(timeout=500):
                 prprice = cell_element.locator(xpath_str).text_content(timeout=500)
-                print(f"\t5.--- price:{prprice}")
+                # print(f"\t5.--- price:{prprice}")
             # else:
             #     print(f'\t5.--- {xpath_str} is NOT visible')       
             #     continue
         
         if href_url != "":
             get_prod_option_data(page_no, href_url, keyword)
-            print(f"PAGE:{page_no}, Product Index: {row_index} data extraction completed\n")
+            # print(f"PAGE:{page_no}, Product Index: {row_index} data extraction completed\n")
 
 
 ''' move to prod page and save inventory to excel file '''
 def get_prod_option_data(page_no, href_url, keyword):
-    print(f'\tFor prod in PG:{page_no}, will save the inventory into Excel')
+    # print(f'\tFor prod in PG:{page_no}, will save the inventory into Excel')
     page = browser.page()
     # Not working, Protocol error (Page.navigate): 
     # Cannot navigate to invalid URL 
@@ -328,7 +332,7 @@ def get_prod_option_data(page_no, href_url, keyword):
     # access invenrory and save them to excel file
     save_data_to_excel(keyword)
     
-    print("will go back to prod page")
+    # print("will go back to prod page")
     browser.page().go_back(timeout=1000)
     
     
@@ -341,14 +345,14 @@ def save_data_to_excel(keyword):
     
     prname = page.locator("div.prdetailname").text_content(timeout=500)
     prprice = page.locator("span#idx_price").inner_text(timeout=500)
-    print(f'Name:{prname}, Price:{prprice}')
+    # print(f'Name:{prname}, Price:{prprice}')
     
     # option 정보를 추출
     select_locator = page.locator("select[class='basic_select']")
     option_locators = select_locator.locator("option").all()
     option_texts = [opt.inner_text() for opt in option_locators] 
     # option_texts = option_texts.replace("\n","").replace("\t","")   
-    print(f"type: {type(option_texts)}, Options: {option_texts}, ")
+    # print(f"type: {type(option_texts)}, Options: {option_texts}, ")
     
     for option in option_texts:
         option_list = option.split('|')
@@ -375,165 +379,4 @@ def close_workbook():
     
     
     
-    
-    
- ##### =======================================================   
-    
-
-''' get the list of all products, separated by page no '''    
-def get_all_product_list():
-    global keyword
-    page = browser.page()        
-    page.fill('input[name="search"]', keyword)
-    page.click('a[href="javascript:TopSearchCheck()"]')
-    
-    # quote() 함수로 URL 인코딩 수행
-    encoded_keyword = quote(keyword)
-    search_url = f"http://newonpan.getmall.kr/front/productsearch.php?search={encoded_keyword}"
-    print(f'URL: {search_url}')
-    page.wait_for_url(search_url, timeout=5000) 
-
-    last_page = get_last_page_no()        
-    if last_page < 0:
-        print("마지막 페이지 No. 인식 오류, 종료됨")
-        exit
-    print(f'마지막 페이지: {last_page}')
-    
-    # page 1
-    # get_page_products2(1)
-    
-    for page_no in range(2, last_page+1):
-        goto_page(page_no, keyword)
-        prods = get_page_products2(page_no)
-        
-        page_no = page_no + 1
-
- 
-''' get the number of pages '''
-def get_last_page_no():
-    # page = browser.page()        
-    
-    try:
-        scroll_trigger_locator = browser.page().locator("//form[1]/div[6]")
-        scroll_trigger_locator.scroll_into_view_if_needed()
-
-        # 1. '마지막 페이지' 텍스트를 가진 <a> 요소를 찾음
-        # last_page_locator = browser.page().locator('//a[text()="마지막 페이지"]')
-        last_page_locator = browser.page().locator("//form[1]/div[6]/a[11]")    # "0":working, "안전":not working"
-        # last_page_locator = browser.page().locator("//form[1]/div[6]/a")        # "0", "안전":not working"
-        # last_page_locator.wait_for()
-        
-        # 2. 요소의 'href' 속성 값을 가져옴
-        href_value = last_page_locator.get_attribute("href", timeout=1000)
-        
-        # 3. 정규 표현식으로 'GoPage(X,Y)'에서 Y 값을 추출
-        match = re.search(r'GoPage\(\d+,\s*(\d+)\);', href_value)
-        
-        if match:
-            max_page_number = int(match.group(1))
-            print(f"마지막 페이지 번호: {max_page_number}")
-            return max_page_number
-        else:
-            print("마지막 페이지 번호를 찾을 수 없습니다.")
-            return -1
-    except Exception as e:
-        print(f"Exception 발생: {e}")
-        return -1
-    
-''' Display products in specified page '''            
-def goto_page(page_no, keyword):
-    page = browser.page()        
-    
-    page_idx = (page_no - 1) // 10
-    # print(f'PG_IDX:{page_idx}, PAGE_NO: {page_no}')
-
-    href_link = f'a[href="javascript:GoPage({page_idx},{page_no});"]'
-    browser.page().locator(f'{href_link}').scroll_into_view_if_needed()
-    page.click(f'{href_link}')
-
-    pg_url = f'http://newonpan.getmall.kr/front/productsearch.php?block={page_idx}&gotopage={page_no}&sort=&codeA=&codeB=&codeC=&codeD=&minprice=&maxprice=&s_check=all&search={keyword}&search1=&listnum=20'    
-    page.wait_for_url(url=pg_url, timeout=5000)    # working
-    
-''' Access each product in the page '''    
-def get_page_products(page_no):    
-    print(f'GET_PAGE_PRODUCTS.............PAGE:{page_no}')
-    page = browser.page()  
-    
-    body_locator = browser.page().locator("//table/tbody/tr/td[*]/a/p.prname")
-    locators = body_locator.all()     # empty list
-    if locators.count == 0:
-        print('LOCATORS is NULL')
-    
-    idx = 0        
-    for loc in locators:
-        # prname_loc = loc.locator('p.prname')
-        pr_name = loc.text_content
-        # print(f'PAGE:{page_no}, IDX:{idx}, {loc.type} ')
-        print(f'PAGE:{page_no}, IDX:{idx}, {pr_name} ')
-        idx = idx + 1
-
-    idx = 0
-    text_lists = body_locator.all_text_contents()
-    if text_lists.count == 0:
-        print('TEXT_LISTS is NULL')
-    for text_content in text_lists:
-        print(f'PAGE:{page_no}, IDX:{idx}, {text_content} ')
-        idx = idx + 1
-        
-    # locators = body_locator.get_by_role('tr').all()
-    # print(f"2.......... PAGE_NO:{page_no}, COUNT: {locators.index}")
-    # for li in page.get_by_role('tbody').all():
-    #     texts = li.all_inner_texts()
-    #     for text in texts:
-    #         print(f"3...........{text}")
-    
-                
-''' Access each product in the page '''    
-def get_page_products2(page_no):   
-    print(f'GET_PAGE_PRODUCTS2.............PAGE:{page_no}') 
-     # Get the locator for all product rows in the table
-    product_rows = browser.page().locator('tbody tr')
-    
-    # Get the count of rows to loop through
-    row_count = product_rows.count()
-    print(f'\nPAGE:{page_no}, "tbody tr" 갯수: {row_count}')
-
-    # Create a list to store the extracted data
-    extracted_data = []
-
-    for i in range(row_count):
-        row = product_rows.nth(i)
-        try:
-            # Locate the href link within the current row
-            href_link_locator = ''
-            href_link = ''
-            if row.locator('a[href*="productdetail.php"]').is_visible(timeout=500):
-                href_link_locator = row.locator('a[href*="productdetail.php"]')
-                href_link = href_link_locator.get_attribute("href", timeout=500)
-            else:
-                continue
-            
-            # Locate the prname text within the current row
-            prname_locator = ''
-            prname_text = ''
-            if row.locator('p.prname').is_visible(timeout=500):
-                prname_locator = row.locator('p.prname')
-                prname_text = prname_locator.text_content()
-                print(f"PG:{page_no}, IDX:{i}, prname: {prname_text}")
-            else:
-                continue
-            
-            # Store the data
-            if href_link and prname_text:
-                extracted_data.append({
-                    "href": href_link,
-                    "prname": prname_text.strip() # .strip() removes whitespace
-                })
-
-        except Exception as e:
-            # Handle cases where a row might not contain the elements
-            print(f"Skipping a row due to an error: {e}")
-            continue
-
-    print(f'PG:{page_no}, PROD: LEN:{len(extracted_data)}, DATA:{extracted_data}\n')
-    return extracted_data
+  
