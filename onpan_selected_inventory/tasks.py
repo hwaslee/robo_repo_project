@@ -22,10 +22,12 @@ sheet = ''
 condition = '상품명'      
 # 검색할 상품 또는 그룹 키워드를 지정 (상품명, 키워드 중간에 space가 있으면 오류 발생)
 # 그룹 키워드로 검색시 제외할 상품이 있으면 exclude_list에 상품명 추가하여 배제
+
 keywords = ["3공", "7단", "가방보관함", "걸이식", "카포", "기타받침대", "기타발판", "드럼", "드릴", "대나무", "당구", "뜰채", 
             "로코코", "문서제단기", "멀티테스터", "밀대걸레", "바둑", "부직포", "사인폴", "스코어", "스패너", "시트지", "신발주머니", "실리콘테이프", 
             "%%아크릴꽂이(ac)-부착형", "%%아크릴꽂이(ac)-L자형", "%%아크릴꽂이(ac)-T자형", "아이언", "에어맥스깔창", "우산", "이랑", 
             "고급형이젤", "%%이젤(easel)", "종이", "체스", "치솔", "통발", "티라이트", "패브릭", "포스터", "플랫", "현관" ]  
+# keywords = ["포스터", "플랫", "현관" ]  
 
                 # "대형밀대걸레-공동",
 exclude_list = ['[MINE]', 
@@ -382,10 +384,13 @@ def save_data_to_excel(keyword):
         processed_option_list = []
         for item in option_list:
             if "재고:" in item:
-                # 정규표현식으로 숫자만 추출 (예: "재고:10개" -> 10)
-                count_match = re.search(r'\d+', item)
+                # [수정] 숫자와 쉼표(,)가 섞인 패턴을 모두 찾습니다.
+                count_match = re.search(r'[\d,]+', item)
                 if count_match:
-                    processed_option_list.append(int(count_match.group()))
+                    # 추출된 문자열에서 쉼표(,)를 제거한 후 정수로 변환합니다.
+                    # 예: "9,999,999" -> "9999999" -> 9999999(int)
+                    clean_count = count_match.group().replace(',', '')
+                    processed_option_list.append(int(clean_count))
                 else:
                     processed_option_list.append(item)
             else:
