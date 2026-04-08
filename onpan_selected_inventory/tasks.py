@@ -359,7 +359,8 @@ def save_data_to_excel(keyword):
 
     # 스타일 설정 (미리 정의해두면 속도가 빠릅니다)
     red_font = Font(color="FF0000") # 빨간색 글자
-    sky_fill = PatternFill(start_color="87CEEB", end_color="87CEEB", fill_type="solid") # 하늘색 배경
+    # sky_fill = PatternFill(start_color="87CEEB", end_color="87CEEB", fill_type="solid") # 하늘색 배경
+    sky_fill = PatternFill(start_color="ADD3EA", end_color="ADD3EA", fill_type="solid")   # "#ADD3EA"에서 선택
     
     page = browser.page()
     
