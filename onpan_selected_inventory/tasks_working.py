@@ -1,8 +1,6 @@
 import time
 import re
 import openpyxl
-from openpyxl.styles import Font, PatternFill
-import re # 숫자 추출을 위한 정규표현식
 import traceback
 import sys
 from datetime import datetime
@@ -22,11 +20,15 @@ sheet = ''
 condition = '상품명'      
 # 검색할 상품 또는 그룹 키워드를 지정 (상품명, 키워드 중간에 space가 있으면 오류 발생)
 # 그룹 키워드로 검색시 제외할 상품이 있으면 exclude_list에 상품명 추가하여 배제
-keywords = ["3공", "7단", "가방보관함", "걸이식", "카포", "기타받침대", "기타발판", "드럼", "드릴", "대나무", "당구", "뜰채", 
-            "로코코", "문서제단기", "멀티테스터", "밀대걸레", "바둑", "부직포", "사인폴", "스코어", "스패너", "시트지", "신발주머니", "실리콘테이프", 
-            "%%아크릴꽂이(ac)-부착형", "%%아크릴꽂이(ac)-L자형", "%%아크릴꽂이(ac)-T자형", "아이언", "에어맥스깔창", "우산", "이랑", 
-            "고급형이젤", "%%이젤(easel)", "종이", "체스", "치솔", "통발", "티라이트", "패브릭", "포스터", "플랫", "현관" ]  
-
+keywords = [
+"3공", "7단", "가방보관함", "걸이식", "%%드럼패드세트", "드럼스틱가방",
+"%%드럼스틱", "%%드럼스틱공동", "전동드릴 청소브러쉬 패드", "전동 드릴 청소브러쉬", "전동 드릴 청소브러쉬 부품",
+"대나무독서대", "%%당구큐 당구공", "미니당구큐대/일반당구큐대", "%%당구쵸크", "당구용품-장갑", "%%당구전용공-포켓볼", "뜰채", "로코코매트 출입구매트",
+"%%문서제단기", "%%문서제단기-공동", "멀티테스터기", "대형밀대걸레", "대형밀대걸레-공동", "%%사인폴", "8P 스패너세트", "%%몽키스패너", "스패너 세트",  
+"메모시트지", "실리콘테이프", "%%아크릴꽂이(ac)-부착형", "%%아크릴꽂이(ac)-L자형", "%%아크릴꽂이(ac)-T자형", "에어맥스깔창", "꽃피는 자동우산", 
+"이랑매트-공동", "고급형이젤-블랙", "%%이젤(easel)", "종이 액자", "사각통발", "원형 통발", "티라이트", "패브릭 투명창 이불정리함", "포스터스탠드(PS)",
+"현관매트(소형)", "현관매트(소형)-공동"
+]
                 # "대형밀대걸레-공동",
 exclude_list = ['[MINE]', 
                 "현관자석선반", 
@@ -100,18 +102,10 @@ exclude_list = ['[MINE]',
                 "실리콘조리도구",
                 "274 스포츠허리보호대 고급형",
                 "105 실리콘겔 깔창",
-                "온판 프리미엄 아이언커버 4종세트",
                 "에어맥스깔창[K]",
                 "093 LED티라이트",
                 "015 엔틱 티라이트 캔들 홀더 [D]",
-                "015 회전 티라이트 캔들 홀더 [D]",
-                "고급형 기타카포",
-                "기타받침대-공동",
-                "부직포 주머니",
-                "036 부직포 수납함",
-                "일반바둑판 바둑알",
-                "%%원목접이식체스",
-                "칫솔양치컵"
+                "015 회전 티라이트 캔들 홀더 [D]"
                 ]
 
 """ Insert the sales data for the week and export it as a PDF """
@@ -354,10 +348,6 @@ def get_prod_option_data(page_no, href_url, keyword):
 def save_data_to_excel(keyword):
     global workbook
     global sheet
-
-    # 스타일 설정 (미리 정의해두면 속도가 빠릅니다)
-    red_font = Font(color="FF0000") # 빨간색 글자
-    sky_fill = PatternFill(start_color="87CEEB", end_color="87CEEB", fill_type="solid") # 하늘색 배경
     
     page = browser.page()
     
@@ -377,38 +367,8 @@ def save_data_to_excel(keyword):
         option_list = option.split('|')
         if any("(필수)" in item for item in option_list) or any("---" in item for item in option_list):
             continue
-
-        # 1. 데이터 가공: "재고:N개"에서 숫자만 추출하여 변경
-        processed_option_list = []
-        for item in option_list:
-            if "재고:" in item:
-                # 정규표현식으로 숫자만 추출 (예: "재고:10개" -> 10)
-                count_match = re.search(r'\d+', item)
-                if count_match:
-                    processed_option_list.append(int(count_match.group()))
-                else:
-                    processed_option_list.append(item)
-            else:
-                processed_option_list.append(item.strip())
-
-        # 2. 데이터 시트에 추가
-        row_data = [keyword] + [prname, prprice] + processed_option_list
+        row_data = [keyword] + [prname, prprice] + option_list
         sheet.append(row_data)
-
-        # 3. 스타일 적용 (방금 추가된 행의 마지막 셀들 확인)
-        last_row_idx = sheet.max_row
-
-       # 정확히 F열(6번 열)의 셀을 선택
-        stock_cell = sheet.cell(row=last_row_idx, column=6) 
-        val = stock_cell.value
-
-        # 재고 값(숫자)에 따른 스타일 적용
-        if isinstance(val, (int, float)): # 숫자인지 확인
-            if val == 0:
-                stock_cell.font = red_font
-            elif val < 10:
-                stock_cell.fill = sky_fill
-
         keyword = " "
         
         prname = ' '
